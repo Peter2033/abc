@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vokabeltrainer Deutsch-Thai</title>
+  <style>
+    body {
+      background-color: #1a1a2e; /* Dunkelblau als Fallback */
+      color: #e0e0e0; /* Helle Schrift für Lesbarkeit */
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      padding: 20px;
+      background-color: #16213e; /* Dunkler Container */
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      color: #06B6D4; /* Cyan für Titel */
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    h2 {
+      color: #A5B4FC; /* Hellviolett für Untertitel */
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      background-color: #6B7280; /* Dunkelviolett für Buttons */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #4B5563; /* Dunkleres Violett beim Hover */
+    }
+    .cyan-button {
+      background-color: #06B6D4; /* Cyan für primäre Aktionen */
+    }
+    .cyan-button:hover {
+      background-color: #0284C7; /* Dunkleres Cyan beim Hover */
+    }
+    .feedback {
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+    .feedback.correct {
+      color: #34D399; /* Grün für richtige Antworten */
+    }
+    .feedback.incorrect {
+      color: #F87171; /* Rot für falsche Antworten */
+    }
+    .error {
+      color: #F87171; /* Rot für Fehlermeldungen */
+      text-align: center;
+      font-size: 1.2rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .flex-center {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .word-card {
+      background-color: #2D3748; /* Dunkler Card-Hintergrund */
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .option-button {
+      background-color: #6B7280; /* Dunkelviolett für Optionen */
+      margin-bottom: 5px;
+      width: 100%;
+    }
+    .option-button.correct {
+      background-color: #34D399; /* Grün für richtige Antwort */
+    }
+    .option-button.incorrect {
+      background-color: #F87171; /* Rot für falsche Antwort */
+    }
+    .option-button:disabled {
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div id="root" class="container"></div>
+
+  <!-- React und ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <script>
+     // Kategorien und Vokabeln
+    const categoriesData = {
+	 "Begrüßungen und Grundausdrücke - การทักทายและสำนวนพื้นฐาน": [
+        { de: "Hallo", th: "สวัสดี" },
+        { de: "Guten Tag", th: "สวัสดีตอนกลางวัน" },
+        { de: "Guten Morgen", th: "สวัสดีตอนเช้า" },
+        { de: "Guten Abend", th: "สวัสดีตอนเย็น" },
+        { de: "Auf Wiedersehen", th: "ลาก่อน" },
+        { de: "Tschüss", th: "บาย" },
+        { de: "Bitte", th: "ได้โปรด" },
+        { de: "Danke", th: "ขอบคุณ" },
+        { de: "Entschuldigung", th: "ขอโทษ" },
+        { de: "Es tut mir leid", th: "ฉันขอโทษ" },
+        { de: "Kein Problem", th: "ไม่มีปัญหา" },
+        { de: "Wie geht es dir?", th: "คุณสบายดีไหม?" },
+        { de: "Mir geht's gut", th: "ฉันสบายดี" },
+        { de: "Wie heißt du?", th: "คุณชื่ออะไร?" },
+        { de: "Ich heiße...", th: "ฉันชื่อ..." },
+        { de: "Freut mich", th: "ยินดีที่ได้รู้จัก" },
+        { de: "Guten Appetit", th: "เจริญอาหาร" },
+        { de: "Prost", th: "ชนแก้ว" },
+        { de: "Alles Gute", th: "ขอให้โชคดี" },
+        { de: "Herzlich willkommen", th: "ยินดีต้อนรับ" },
+        { de: "Viel Spaß", th: "ขอให้สนุก" },
+        { de: "Gute Reise", th: "เดินทางปลอดภัย" },
+        { de: "Bis bald", th: "เจอกันเร็วๆ นี้" },
+        { de: "Glückwunsch", th: "ยินดีด้วย" },
+        { de: "Wie kann ich dir helfen?", th: "ฉันจะช่วยคุณได้อย่างไร?" },
+        { de: "Was machst du?", th: "คุณทำอะไร?" },
+        { de: "Woher kommst du?", th: "คุณมาจากไหน?" },
+        { de: "Ich verstehe", th: "ฉันเข้าใจ" },
+        { de: "Ich weiß nicht", th: "ฉันไม่รู้" },
+        { de: "Kannst du das wiederholen?", th: "คุณช่วยพูดซ้ำได้ไหม?" },
+        { de: "Langsam, bitte", th: "ช้าๆ หน่อยค่ะ" },
+        { de: "Gute Nacht", th: "ราตรีสวัสดี" },
+        { de: "Viel Erfolg", th: "ขอให้โชคดี" },
+        { de: "Was ist das?", th: "นี่คืออะไร?" },
+        { de: "Wo ist...?", th: "...อยู่ที่ไหน?" },
+        { de: "Wie viel kostet das?", th: "นี่ราคาเท่าไหร่?" },
+        { de: "Ich bin müde", th: "ฉันเหนื่อย" },
+        { de: "Ich bin hungrig", th: "ฉันหิว" },
+        { de: "Ich liebe dich", th: "ฉันรักคุณ" },
+        { de: "Alles klar", th: "ทุกอย่างชัดเจน" },
+        { de: "Das macht nichts", th: "ไม่เป็นไร" },
+        { de: "Gern geschehen", th: "ยินดี" },
+        { de: "Wie schön!", th: "สวยงามมาก!" },
+        { de: "Entschuldige bitte", th: "ขอโทษด้วย" },
+        { de: "Was gibt's?", th: "มีอะไร?" },
+        { de: "Ich komme später", th: "ฉันจะมาทีหลัง" },
+        { de: "Mach's gut", th: "ดูแลตัวเองด้วย" },
+        { de: "Bis morgen", th: "เจอกันพรุ่งนี้" },
+        { de: "Wie spät ist es?", th: "ตอนนี้กี่โมงแล้ว?" },
+        { de: "Gute Besserung", th: "หายไวๆ นะ" },
+        { de: "Ich brauche Hilfe", th: "ฉันต้องการความช่วยเหลือ" },
+        { de: "Kann ich bezahlen?", th: "ฉันสามารถชำระเงินได้ไหม?" },
+        { de: "Das ist toll", th: "นี่มันยอดเยี่ยม" },
+        { de: "Ich bin beschäftigt", th: "ฉันยุ่ง" },
+        { de: "Wo wohnst du?", th: "คุณอาศัยอยู่ที่ไหน?" },
+        { de: "Ich bin hier", th: "ฉันอยู่ที่นี่" },
+        { de: "Komm her!", th: "มาที่นี่!" },
+        { de: "Warte einen Moment", th: "รอสักครู่" },
+        { de: "Es ist mir egal", th: "ฉันไม่สนใจ" },
+        { de: "Das ist teuer", th: "นี่แพง" },
+        { de: "Das ist billig", th: "นี่ถูก" },
+        { de: "Ich mag das", th: "ฉันชอบสิ่งนี้" },
+        { de: "Ich mag das nicht", th: "ฉันไม่ชอบสิ่งนี้" },
+        { de: "Was denkst du?", th: "คุณคิดอย่างไร?" },
+        { de: "Das ist interessant", th: "นี่น่าสนใจ" },
+        { de: "Ich bin einverstanden", th: "ฉันเห็นด้วย" },
+        { de: "Das stimmt", th: "นั่นถูกต้อง" },
+        { de: "Das stimmt nicht", th: "นั่นไม่ถูกต้อง" }
+    ],
+    "Zahlen und Zeit - ตัวเลขและเวลา": [
+        { de: "Eins", th: "หนึ่ง" },
+        { de: "Zwei", th: "สอง" },
+        { de: "Drei", th: "สาม" },
+        { de: "Vier", th: "สี่" },
+        { de: "Fünf", th: "ห้า" },
+        { de: "Sechs", th: "หก" },
+        { de: "Sieben", th: "เจ็ด" },
+        { de: "Acht", th: "แปด" },
+        { de: "Neun", th: "เก้า" },
+        { de: "Zehn", th: "สิบ" },
+        { de: "Elf", th: "สิบเอ็ด" },
+        { de: "Zwölf", th: "สิบสอง" },
+        { de: "Dreizehn", th: "สิบสาม" },
+        { de: "Vierzehn", th: "สิบสี่" },
+        { de: "Fünfzehn", th: "สิบห้า" },
+        { de: "Sechzehn", th: "สิบหก" },
+        { de: "Siebzehn", th: "สิบเจ็ด" },
+        { de: "Achtzehn", th: "สิบแปด" },
+        { de: "Neunzehn", th: "สิบเก้า" },
+        { de: "Zwanzig", th: "ยี่สิบ" },
+        { de: "Dreißig", th: "สามสิบ" },
+        { de: "Vierzig", th: "สี่สิบ" },
+        { de: "Fünfzig", th: "ห้าสิบ" },
+        { de: "Sechzig", th: "หกสิบ" },
+        { de: "Siebzig", th: "เจ็ดสิบ" },
+        { de: "Achtzig", th: "แปดสิบ" },
+        { de: "Neunzig", th: "เก้าสิบ" },
+        { de: "Hundert", th: "ร้อย" },
+        { de: "Tausend", th: "พัน" },
+        { de: "Million", th: "ล้าน" },
+        { de: "Uhr", th: "นาฬิกา" },
+        { de: "Minute", th: "นาที" },
+        { de: "Stunde", th: "ชั่วโมง" },
+        { de: "Sekunde", th: "วินาที" },
+        { de: "Tag", th: "วัน" },
+        { de: "Woche", th: "สัปดาห์" },
+        { de: "Monat", th: "เดือน" },
+        { de: "Jahr", th: "ปี" },
+        { de: "heute", th: "วันนี้" },
+        { de: "morgen", th: "พรุ่งนี้" },
+        { de: "gestern", th: "เมื่อวาน" },
+        { de: "Vormittag", th: "ช่วงเช้า" },
+        { de: "Nachmittag", th: "ช่วงบ่าย" },
+        { de: "Abend", th: "ตอนเย็น" },
+        { de: "Mitternacht", th: "เที่ยงคืน" },
+        { de: "Morgen", th: "ตอนเช้า" },
+        { de: "übermorgen", th: "มะรืนนี้" },
+        { de: "vorgestern", th: "เมื่อวานซืน" },
+        { de: "Wochenende", th: "สุดสัปดาห์" },
+        { de: "Arbeitstag", th: "วันทำงาน" },
+        { de: "Feiertag", th: "วันหยุดราชการ" },
+        { de: "Zeit", th: "เวลา" },
+        { de: "Uhrzeit", th: "เวลานาฬิกา" },
+        { de: "Jahrhundert", th: "ศตวรรษ" },
+        { de: "Jahrzehnt", th: "ทศวรรษ" },
+        { de: "Datum", th: "วันที่" },
+        { de: "Kalender", th: "ปฏิทิน" },
+        { de: "Mittag", th: "เที่ยงวัน" },
+        { de: "Nacht", th: "กลางคืน" },
+        { de: "Frühling", th: "ฤดูใบไม้ผลิ" },
+        { de: "Sommer", th: "ฤดูร้อน" },
+        { de: "Herbst", th: "ฤดูใบไม้ร่วง" },
+        { de: "Winter", th: "ฤดูหนาว" }
+    ],
+    "Essen und Trinken - อาหารและเครื่องดื่ม": [
+        { de: "Essen", th: "อาหาร" },
+        { de: "Frühstück", th: "อาหารเช้า" },
+        { de: "Mittagessen", th: "อาหารกลางวัน" },
+        { de: "Abendessen", th: "อาหารเย็น" },
+        { de: "Getränk", th: "เครื่องดื่ม" },
+        { de: "Wasser", th: "น้ำ" },
+        { de: "Kaffee", th: "กาแฟ" },
+        { de: "Tee", th: "ชา" },
+        { de: "Bier", th: "เบียร์" },
+        { de: "Wein", th: "ไวน์" },
+        { de: "Brot", th: "ขนมปัง" },
+        { de: "Fleisch", th: "เนื้อสัตว์" },
+        { de: "Gemüse", th: "ผัก" },
+        { de: "Obst", th: "ผลไม้" },
+        { de: "Suppe", th: "ซุป" },
+        { de: "Salat", th: "สลัด" },
+        { de: "Fisch", th: "ปลา" },
+        { de: "Kuchen", th: "เค้ก" },
+        { de: "Reis", th: "ข้าว" },
+        { de: "Nudeln", th: "ก๋วยเตี๋ยว" },
+        { de: "Käse", th: "ชีส" },
+        { de: "Milch", th: "นม" },
+        { de: "Butter", th: "เนย" },
+        { de: "Eier", th: "ไข่" },
+        { de: "Zucker", th: "น้ำตาล" },
+        { de: "Salz", th: "เกลือ" },
+        { de: "Pfeffer", th: "พริกไทย" },
+        { de: "Öl", th: "น้ำมัน" },
+        { de: "Essig", th: "น้ำส้มสายชู" },
+        { de: "Soße", th: "น้ำจิ้ม" },
+        { de: "Gewürz", th: "เครื่องเทศ" },
+        { de: "Huhn", th: "ไก่" },
+        { de: "Rind", th: "เนื้อวัว" },
+        { de: "Schwein", th: "หมู" },
+        { de: "Lamm", th: "เนื้อแกะ" },
+        { de: "Kartoffel", th: "มันฝรั่ง" },
+        { de: "Tomate", th: "มะเขือเทศ" },
+        { de: "Karotte", th: "แครอท" },
+        { de: "Zwiebel", th: "หัวหอม" },
+        { de: "Knoblauch", th: "กระเทียม" },
+        { de: "Salat", th: "ผักกาด" },
+        { de: "Gurke", th: "แตงกวา" },
+        { de: "Paprika", th: "พริกหยวก" },
+        { de: "Brokkoli", th: "บรอกโคลี" },
+        { de: "Blumenkohl", th: "กะหล่ำดอก" },
+        { de: "Spinat", th: "ผักโขม" },
+        { de: "Kohl", th: "กะหล่ำปลี" },
+        { de: "Apfel", th: "แอปเปิ้ล" },
+        { de: "Banane", th: "กล้วย" },
+        { de: "Orange", th: "ส้ม" },
+        { de: "Traube", th: "องุ่น" }
+      ],
+	  
+	  "Tage und Monate - วันและเดือน": [
+    { de: "Montag", th: "วันจันทร์" },
+    { de: "Dienstag", th: "วันอังคาร" },
+    { de: "Mittwoch", th: "วันพุธ" },
+    { de: "Donnerstag", th: "วันพฤหัสบดี" },
+    { de: "Freitag", th: "วันศุกร์" },
+    { de: "Samstag", th: "วันเสาร์" },
+    { de: "Sonntag", th: "วันอาทิตย์" },
+    { de: "Januar", th: "มกราคม" },
+    { de: "Februar", th: "กุมภาพันธ์" },
+    { de: "März", th: "มีนาคม" },
+    { de: "April", th: "เมษายน" },
+    { de: "Mai", th: "พฤษภาคม" },
+    { de: "Juni", th: "มิถุนายน" },
+    { de: "Juli", th: "กรกฎาคม" },
+    { de: "August", th: "สิงหาคม" },
+    { de: "September", th: "กันยายน" },
+    { de: "Oktober", th: "ตุลาคม" },
+    { de: "November", th: "พฤศจิกายน" },
+    { de: "Dezember", th: "ธันวาคม" },
+    { de: "Tag", th: "วัน" },
+    { de: "Woche", th: "สัปดาห์" },
+    { de: "Monat", th: "เดือน" },
+    { de: "Jahr", th: "ปี" },
+    { de: "Wochenende", th: "สุดสัปดาห์" },
+    { de: "Feiertag", th: "วันหยุดราชการ" },
+    { de: "Morgen", th: "ตอนเช้า" },
+    { de: "Mittag", th: "เที่ยงวัน" },
+    { de: "Abend", th: "ตอนเย็น" },
+    { de: "Nacht", th: "กลางคืน" },
+    { de: "Vormittag", th: "ช่วงเช้า" },
+    { de: "Nachmittag", th: "ช่วงบ่าย" },
+    { de: "Mitternacht", th: "เที่ยงคืน" },
+    { de: "Übermorgen", th: "มะรืนนี้" },
+    { de: "Vorgestern", th: "เมื่อวานซืน" },
+    { de: "Heute", th: "วันนี้" },
+    { de: "Morgen", th: "พรุ่งนี้" },
+    { de: "Gestern", th: "เมื่อวาน" },
+    { de: "Kalender", th: "ปฏิทิน" },
+    { de: "Datum", th: "วันที่" },
+    { de: "Zeitplan", th: "ตารางเวลา" },
+    { de: "Termin", th: "นัดหมาย" },
+    { de: "Feier", th: "งานเฉลิมฉลอง" },
+    { de: "Geburtstag", th: "วันเกิด" },
+    { de: "Jahrestag", th: "วันครบรอบ" },
+    { de: "Fest", th: "เทศกาล" },
+    { de: "Urlaub", th: "วันหยุด" },
+    { de: "Silvester", th: "วันสิ้นปี" },
+    { de: "Weihnachten", th: "คริสต์มาส" },
+    { de: "Ostern", th: "อีสเตอร์" },
+    { de: "Sommerferien", th: "วันหยุดฤดูร้อน" },
+    { de: "Winterferien", th: "วันหยุดฤดูหนาว" },
+    { de: "Schulferien", th: "วันหยุดโรงเรียน" },
+    { de: "Nationalfeiertag", th: "วันชาติ" },
+    { de: "Arbeitswoche", th: "สัปดาห์ทำงาน" },
+    { de: "Wochentag", th: "วันทำงาน" },
+    { de: "Monatsanfang", th: "ต้นเดือน" },
+    { de: "Monatsende", th: "สิ้นเดือน" },
+    { de: "Halbjahr", th: "ครึ่งปี" },
+    { de: "Quartal", th: "ไตรมาส" },
+    { de: "Jahreszeit", th: "ฤดูกาล" },
+    { de: "Schaltjahr", th: "ปีอธิกสุรทิน" },
+    { de: "Wochentag", th: "วันในสัปดาห์" },
+    { de: "Wochenbeginn", th: "เริ่มสัปดาห์" },
+    { de: "Wochenende", th: "สุดสัปดาห์" },
+    { de: "Ferienzeit", th: "ช่วงวันหยุด" },
+    { de: "Feiertagszeit", th: "ช่วงวันหยุดราชการ" },
+    { de: "Morgenstunde", th: "ชั่วโมงเช้า" },
+    { de: "Abendstunde", th: "ชั่วโมงเย็น" },
+    { de: "Tageszeit", th: "ช่วงเวลาของวัน" },
+    { de: "Zeitangabe", th: "การระบุเวลา" },
+    { de: "Zeitpunkt", th: "จุดเวลา" },
+    { de: "Zeitfenster", th: "ช่วงเวลา" },
+    { de: "Jahresbeginn", th: "ต้นปี" },
+    { de: "Jahresende", th: "สิ้นปี" },
+    { de: "Wochenplan", th: "แผนรายสัปดาห์" },
+    { de: "Monatsplan", th: "แผนรายเดือน" },
+    { de: "Jahresplan", th: "แผนรายปี" },
+    { de: "Feiertagskalender", th: "ปฏิทินวันหยุด" },
+    { de: "Zeitplanung", th: "การวางแผนเวลา" },
+    { de: "Arbeitsfreier Tag", th: "วันหยุดงาน" },
+    { de: "Ruhetag", th: "วันพักผ่อน" },
+    { de: "Sonntagsruhe", th: "การพักผ่อนวันอาทิตย์" },
+    { de: "Feierabend", th: "หลังเลิกงาน" },
+    { de: "Mittagspause", th: "พักเที่ยง" },
+    { de: "Nachtruhe", th: "การพักผ่อนตอนกลางคืน" },
+    { de: "Zeitverschiebung", th: "เขตเวลา" },
+    { de: "Sommerzeit", th: "เวลาออมแสง" },
+    { de: "Winterzeit", th: "เวลามาตรฐาน" },
+    { de: "Kalenderwoche", th: "สัปดาห์ปฏิทิน" },
+    { de: "Monatstag", th: "วันที่ในเดือน" },
+    { de: "Jahrestreffen", th: "การประชุมประจำปี" },
+    { de: "Saison", th: "ฤดูกาล" },
+    { de: "Halbmonat", th: "ครึ่งเดือน" },
+    { de: "Tagesplan", th: "แผนประจำวัน" },
+    { de: "Wochenkalender", th: "ปฏิทินรายสัปดาห์" },
+    { de: "Monatskalender", th: "ปฏิทินรายเดือน" },
+    { de: "Jahreskalender", th: "ปฏิทินรายปี" },
+    { de: "Zeitmanagement", th: "การบริหารเวลา" },
+    { de: "Zeitplaner", th: "ผู้วางแผนเวลา" },
+    { de: "Terminplan", th: "แผนการนัดหมาย" },
+    { de: "Feiertagsplan", th: "แผนวันหยุด" },
+    { de: "Urlaubsplan", th: "แผนวันหยุด" },
+    { de: "Tagesablauf", th: "กำหนดการประจำวัน" },
+    { de: "Wochenablauf", th: "กำหนดการประจำสัปดาห์" },
+    { de: "Monatsablauf", th: "กำหนดการประจำเดือน" },
+    { de: "Jahresablauf", th: "กำหนดการประจำปี" },
+    { de: "Zeitbudget", th: "งบเวลา" },
+    { de: "Zeitbedarf", th: "ความต้องการเวลา" },
+    { de: "Zeitoptimierung", th: "การปรับเวลาให้เหมาะสม" },
+    { de: "Zeitplanerstellung", th: "การสร้างตารางเวลา" },
+    { de: "Zeitverwaltung", th: "การจัดการเวลา" },
+    { de: "Zeitaufwand", th: "เวลาที่ใช้" },
+    { de: "Zeitverzögerung", th: "ความล่าช้า" },
+    { de: "Zeitablauf", th: "การผ่านของเวลา" },
+    { de: "Zeitvorgabe", th: "กำหนดเวลา" },
+    { de: "Zeitknappheit", th: "การขาดแคลนเวลา" },
+    { de: "Zeitersparnis", th: "การประหยัดเวลา" },
+    { de: "Zeitverlust", th: "การเสียเวลา" },
+    { de: "Zeitgewinn", th: "การประหยัดเวลา" },
+    { de: "Zeitdruck", th: "แรงกดดันด้านเวลา" },
+    { de: "Sonnenaufgang", th: "พระอาทิตย์ขึ้น" },
+    { de: "Sonnenuntergang", th: "พระอาทิตย์ตก" },
+    { de: "Morgendämmerung", th: "รุ่งอรุณ" },
+    { de: "Abenddämmerung", th: "พลบค่ำ" },
+    { de: "Nachtschicht", th: "กะกลางคืน" },
+    { de: "Arbeitszeit", th: "เวลาทำงาน" },
+    { de: "Freizeit", th: "เวลาว่าง" },
+    { de: "Öffnungszeiten", th: "เวลาเปิดทำการ" },
+    { de: "Schließzeiten", th: "เวลาปิดทำการ" },
+    { de: "Zeitmessung", th: "การวัดเวลา" },
+    { de: "Stoppuhr", th: "นาฬิกาจับเวลา" },
+    { de: "Wecker", th: "นาฬิกาปลุก" },
+    { de: "Zeitangabe", th: "การระบุเวลา" },
+    { de: "Zeitwechsel", th: "การเปลี่ยนเวลา" },
+    { de: "Zeitgefühl", th: "ความรู้สึกเกี่ยวกับเวลา" },
+    { de: "Zeitverbrauch", th: "การใช้เวลา" },
+    { de: "Zeitspanne", th: "ช่วงเวลา" },
+    { de: "Ewigkeit", th: "ชั่วนิรันดร์" },
+    { de: "Moment", th: "ช่วงเวลา" },
+    { de: "Sekundenbruchteil", th: "เสี้ยววินาที" },
+    { de: "Tageszeit", th: "ช่วงเวลาของวัน" },
+    { de: "Kalenderjahr", th: "ปีปฏิทิน" },
+    { de: "Zeitlimit", th: "ขีดจำกัดเวลา" },
+    { de: "Zeitfenster", th: "ช่วงเวลา" },
+    { de: "Zeitplaner", th: "ผู้วางแผนเวลา" },
+    { de: "Zeitoptimierung", th: "การปรับเวลาให้เหมาะสม" }
+],
+"Familie und Beziehungen - ครอบครัวและความสัมพันธ์": [
+    { de: "Familie", th: "ครอบครัว" },
+    { de: "Mutter", th: "แม่" },
+    { de: "Vater", th: "พ่อ" },
+    { de: "Schwester", th: "น้องสาว" },
+    { de: "Bruder", th: "พี่ชาย" },
+    { de: "Tochter", th: "ลูกสาว" },
+    { de: "Sohn", th: "ลูกชาย" },
+    { de: "Großmutter", th: "ย่า" },
+    { de: "Großvater", th: "ปู่" },
+    { de: "Tante", th: "ป้า" },
+    { de: "Onkel", th: "ลุง" },
+    { de: "Cousin", th: "ลูกพี่ลูกน้องชาย" },
+    { de: "Cousine", th: "ลูกพี่ลูกน้องหญิง" },
+    { de: "Neffe", th: "หลานชาย" },
+    { de: "Nichte", th: "หลานสาว" },
+    { de: "Ehemann", th: "สามี" },
+    { de: "Ehefrau", th: "ภรรยา" },
+    { de: "Freund", th: "เพื่อน" },
+    { de: "Freundin", th: "เพื่อนสาว" },
+    { de: "Partner", th: "คู่รัก" },
+    { de: "Partnerin", th: "คู่รักหญิง" },
+    { de: "Nachbar", th: "เพื่อนบ้าน" },
+    { de: "Nachbarin", th: "เพื่อนบ้านหญิง" },
+    { de: "Kollege", th: "เพื่อนร่วมงาน" },
+    { de: "Kollegin", th: "เพื่อนร่วมงานหญิง" },
+    { de: "Chef", th: "หัวหน้า" },
+    { de: "Chefin", th: "หัวหน้าหญิง" },
+    { de: "Kind", th: "เด็ก" },
+    { de: "Baby", th: "ทารก" },
+    { de: "Jugendlicher", th: "วัยรุ่น" },
+    { de: "Erwachsener", th: "ผู้ใหญ่" },
+    { de: "Senior", th: "ผู้สูงอายุ" },
+    { de: "Verwandte", th: "ญาติ" },
+    { de: "Verwandter", th: "ญาติชาย" },
+    { de: "Geschwister", th: "พี่น้อง" },
+    { de: "Eltern", th: "พ่อแม่" },
+    { de: "Großeltern", th: "ปู่ย่าตายาย" },
+    { de: "Schwiegereltern", th: "พ่อตาแม่ยาย" },
+    { de: "Schwiegermutter", th: "แม่ยาย" },
+    { de: "Schwiegervater", th: "พ่อตา" },
+    { de: "Schwiegertochter", th: "ลูกสะใภ้" },
+    { de: "Schwiegersohn", th: "ลูกเขย" },
+    { de: "Stiefmutter", th: "แม่เลี้ยง" },
+    { de: "Stiefvater", th: "พ่อเลี้ยง" },
+    { de: "Stiefkind", th: "ลูกเลี้ยง" },
+    { de: "Adoptivkind", th: "ลูกบุญธรรม" },
+    { de: "Zwilling", th: "ฝาแฝด" },
+    { de: "Verlobter", th: "คู่หมั้นชาย" },
+    { de: "Verlobte", th: "คู่หมั้นหญิง" },
+    { de: "Hochzeit", th: "งานแต่งงาน" },
+    { de: "Ehe", th: "การแต่งงาน" },
+    { de: "Scheidung", th: "การหย่าร้าง" },
+    { de: "Liebe", th: "ความรัก" },
+    { de: "Freundschaft", th: "มิตรภาพ" },
+    { de: "Beziehung", th: "ความสัมพันธ์" },
+    { de: "Single", th: "โสด" },
+    { de: "Verheiratet", th: "แต่งงานแล้ว" },
+    { de: "Geschieden", th: "หย่าร้าง" },
+    { de: "Witwe", th: "แม่ม่าย" },
+    { de: "Witwer", th: "พ่อม่าย" },
+    { de: "Geburt", th: "การเกิด" },
+    { de: "Tod", th: "ความตตาย" },
+    { de: "Familie", th: "ครอบครัว" },
+    { de: "Haushalt", th: "ครัวเรือน" },
+    { de: "Zusammenleben", th: "การอยู่ร่วมกัน" },
+    { de: "Kindererziehung", th: "การเลี้ยงลูก" },
+    { de: "Erziehung", th: "การอบรม" },
+    { de: "Verantwortung", th: "ความรับผิดชอบ" },
+    { de: "Vertrauen", th: "ความไว้วางใจ" },
+    { de: "Respekt", th: "ความเคารพ" },
+    { de: "Unterstützung", th: "การสนับสนุน" },
+    { de: "Konflikt", th: "ความขัดแย้ง" },
+    { de: "Versöhnung", th: "การคืนดี" },
+    { de: "Treue", th: "ความซื่อสัตย์" },
+    { de: "Eifersucht", th: "ความหึงหวง" },
+    { de: "Streit", th: "การทะเลาะ" },
+    { de: "Harmonie", th: "ความสามัคคี" },
+    { de: "Liebevoll", th: "เต็มไปด้วยความรัก" },
+    { de: "Fürsorge", th: "การดูแล" },
+    { de: "Geborgenheit", th: "ความรู้สึกปลอดภัย" },
+    { de: "Zuneigung", th: "ความเสน่หา" },
+    { de: "Bindung", th: "ความผูกพัน" },
+    { de: "Verständnis", th: "ความเข้าใจ" },
+    { de: "Nähe", th: "ความใกล้ชิด" },
+    { de: "Distanz", th: "ระยะห่าง" },
+    { de: "Gemeinschaft", th: "ชุมชน" },
+    { de: "Familienfeier", th: "งานเลี้ยงครอบครัว" },
+    { de: "Geburtstagsfeier", th: "งานวันเกิด" },
+    { de: "Hochzeitsfeier", th: "งานฉลองแต่งงาน" },
+    { de: "Familientreffen", th: "การรวมตัวของครอบครัว" },
+    { de: "Verwandtschaft", th: "ความเป็นญาติ" },
+    { de: "Stammbaum", th: "ต้นไม้ครอบครัว" },
+    { de: "Erbe", th: "มรดก" },
+    { de: "Tradition", th: "ประเพณี" },
+    { de: "Familienname", th: "นามสกุล" },
+    { de: "Vorname", th: "ชื่อตัว" },
+    { de: "Spitzname", th: "ชื่อเล่น" },
+    { de: "Patenkind", th: "ลูกทูนหัว" },
+    { de: "Pate", th: "พ่อทูนหัว" },
+    { de: "Patin", th: "แม่ทูนหัว" },
+    { de: "Verlobung", th: "การหมั้น" },
+    { de: "Hochzeitsgeschenk", th: "ของขวัญแต่งงาน" },
+    { de: "Familienmitglied", th: "สมาชิกครอบครัว" },
+    { de: "Haustier", th: "สัตว์เลี้ยง" },
+    { de: "Hund", th: "สุนัข" },
+    { de: "Katze", th: "แมว" },
+    { de: "Großfamilie", th: "ครอบครัวใหญ่" },
+    { de: "Kleinfamilie", th: "ครอบครัวเล็ก" },
+    { de: "Alleinerziehend", th: "พ่อหรือแม่เลี้ยงเดี่ยว" },
+    { de: "Geschwisterkind", th: "พี่น้อง" },
+    { de: "Enkel", th: "หลาน" },
+    { de: "Enkelin", th: "หลานสาว" },
+    { de: "Großelternteil", th: "ปู่ย่าตายาย" },
+    { de: "Familienleben", th: "ชีวิตครอบครัว" },
+    { de: "Familienplanung", th: "การวางแผนครอบครัว" },
+    { de: "Kinderwunsch", th: "ความปรารถนาที่จะมีลูก" },
+    { de: "Geschlecht", th: "เพศ" },
+    { de: "männlich", th: "ชาย" },
+    { de: "weiblich", th: "หญิง" },
+    { de: "Geschwisterrivalität", th: "การแข่งขันระหว่างพี่น้อง" },
+    { de: "Familienurlaub", th: "วันหยุดครอบครัว" },
+    { de: "Familienessen", th: "มื้ออาหารครอบครัว" },
+    { de: "Familienzeit", th: "เวลาครอบครัว" },
+    { de: "Zusammenhalt", th: "ความสามัคคี" },
+    { de: "Familienbande", th: "ความผูกพันในครอบครัว" },
+    { de: "Familienfest", th: "งานเลี้ยงครอบครัว" },
+    { de: "Familienheim", th: "บ้านครอบครัว" },
+    { de: "Familienmitglied", th: "สมาชิกครอบครัว" },
+    { de: "Familienstand", th: "สถานภาพครอบครัว" },
+    { de: "Familiengründung", th: "การก่อตั้งครอบครัว" },
+    { de: "Familienzusammenführung", th: "การรวมครอบครัว" },
+    { de: "Familiengeheimnis", th: "ความลับของครอบครัว" },
+    { de: "Familienbesuch", th: "การเยี่ยมครอบครัว" },
+    { de: "Familienfreundlich", th: "เป็นมิตรกับครอบครัว" },
+    { de: "Familienunterstützung", th: "การสนับสนุนครอบครัว" },
+    { de: "Familienpflicht", th: "หน้าที่ครอบครัว" },
+    { de: "Familienbudget", th: "งบประมาณครอบครัว" },
+    { de: "Familienpolitik", th: "นโยบายครอบครัว" },
+    { de: "Familienrecht", th: "กฎหมายครอบครัว" },
+    { de: "Familienplaner", th: "ผู้วางแผนครอบครัว" },
+    { de: "Familienversammlung", th: "การประชุมครอบครัว" },
+    { de: "Familienrat", th: "สภาครอบครัว" },
+    { de: "Familienunternehmen", th: "ธุรกิจครอบครัว" },
+    { de: "Familienkrise", th: "วิกฤตครอบครัว" },
+    { de: "Familienhilfe", th: "ความช่วยเหลือครอบครัว" },
+    { de: "Familienberatung", th: "การปรึกษาครอบครัว" },
+    { de: "Familienleben", th: "ชีวิตครอบครัว" },
+    { de: "Familienstruktur", th: "โครงสร้างครอบครัว" },
+    { de: "Familienwerte", th: "คุณค่าครอบครัว" },
+    { de: "Familienfreundschaft", th: "มิตรภาพครอบครัว" },
+    { de: "Familienausflug", th: "การเดินทางครอบครัว" },
+    { de: "Familienalbum", th: "อัลบั้มครอบครัว" },
+    { de: "Familienfoto", th: "รูปครอบครัว" },
+    { de: "Familienname", th: "นามสกุล" },
+    { de: "Familienmitglieder", th: "สมาชิกครอบครัว" }
+],
+"Arbeit und Bildung - งานและการศึกษา": [
+    { de: "Arbeit", th: "งาน" },
+    { de: "Beruf", th: "อาชีพ" },
+    { de: "Job", th: "งาน" },
+    { de: "Karriere", th: "อาชีพ" },
+    { de: "Chef", th: "หัวหน้า" },
+    { de: "Chefin", th: "หัวหน้าหญิง" },
+    { de: "Kollege", th: "เพื่อนร่วมงาน" },
+    { de: "Kollegin", th: "เพื่อนร่วมงานหญิง" },
+    { de: "Büro", th: "สำนักงาน" },
+    { de: "Firma", th: "บริษัท" },
+    { de: "Unternehmen", th: "องค์กร" },
+    { de: "Mitarbeiter", th: "พนักงาน" },
+    { de: "Mitarbeiterin", th: "พนักงานหญิง" },
+    { de: "Gehalt", th: "เงินเดือน" },
+    { de: "Lohn", th: "ค่าจ้าง" },
+    { de: "Arbeitsplatz", th: "สถานที่ทำงาน" },
+    { de: "Arbeitszeit", th: "เวลาทำงาน" },
+    { de: "Überstunden", th: "การทำงานล่วงเวลา" },
+    { de: "Urlaub", th: "วันหยุด" },
+    { de: "Krankenstand", th: "การลาป่วย" },
+    { de: "Bewerbung", th: "การสมัครงาน" },
+    { de: "Lebenslauf", th: "ประวัติส่วนตัว" },
+    { de: "Vorstellungsgespräch", th: "การสัมภาษณ์งาน" },
+    { de: "Vertrag", th: "สัญญา" },
+    { de: "Kündigung", th: "การเลิกจ้าง" },
+    { de: "Arbeitsvertrag", th: "สัญญาการจ้างงาน" },
+    { de: "Arbeitsbedingungen", th: "สภาพการทำงาน" },
+    { de: "Arbeitsmarkt", th: "ตลาดแรงงาน" },
+    { de: "Arbeitslosigkeit", th: "การว่างงาน" },
+    { de: "Arbeitsgenehmigung", th: "ใบอนุญาตทำงาน" },
+    { de: "Berufsausbildung", th: "การฝึกอบรมวิชาชีพ" },
+    { de: "Praktikum", th: "การฝึกงาน" },
+    { de: "Ausbildung", th: "การฝึกอบรม" },
+    { de: "Schule", th: "โรงเรียน" },
+    { de: "Lehrer", th: "ครู" },
+    { de: "Lehrerin", th: "ครูหญิง" },
+    { de: "Schüler", th: "นักเรียน" },
+    { de: "Schülerin", th: "นักเรียนหญิง" },
+    { de: "Universität", th: "มหาวิทยาลัย" },
+    { de: "Student", th: "นักศึกษา" },
+    { de: "Studentin", th: "นักศึกษาหญิง" },
+    { de: "Professor", th: "ศาสตราจารย์" },
+    { de: "Professorin", th: "ศาสตราจารย์หญิง" },
+    { de: "Vorlesung", th: "การบรรยาย" },
+    { de: "Seminar", th: "สัมมนา" },
+    { de: "Prüfung", th: "การสอบ" },
+    { de: "Note", th: "คะแนน" },
+    { de: "Abschluss", th: "การสำเร็จการศึกษา" },
+    { de: "Diplom", th: "อนุปริญญา" },
+    { de: "Bachelor", th: "ปริญญาตรี" },
+    { de: "Master", th: "ปริญญาโท" },
+    { de: "Doktor", th: "ดุษฎีบัณฑิต" },
+    { de: "Studium", th: "การศึกษา" },
+    { de: "Fach", th: "สาขาวิชา" },
+    { de: "Unterricht", th: "การสอน" },
+    { de: "Hausaufgaben", th: "การบ้าน" },
+    { de: "Lernen", th: "การเรียนรู้" },
+    { de: "Wissen", th: "ความรู้" },
+    { de: "Bildung", th: "การศึกษา" },
+    { de: "Weiterbildung", th: "การศึกษาต่อเนื่อง" },
+    { de: "Kurs", th: "หลักสูตร" },
+    { de: "Training", th: "การฝึกอบรม" },
+    { de: "Schuljahr", th: "ปีการศึกษา" },
+    { de: "Semester", th: "ภาคเรียน" },
+    { de: "Ferien", th: "วันหยุดโรงเรียน" },
+    { de: "Klassenzimmer", th: "ห้องเรียน" },
+    { de: "Tafel", th: "กระดานดำ" },
+    { de: "Buch", th: "หนังสือ" },
+    { de: "Heft", th: "สมุด" },
+    { de: "Stift", th: "ปากกา" },
+    { de: "Papier", th: "กระดาษ" },
+    { de: "Lehrerzimmer", th: "ห้องพักครู" }
+	],
+	"Gesundheit und Körper - สุขภาพและร่างกาย": [
+    { de: "Gesundheit", th: "สุขภาพ" },
+    { de: "Krankheit", th: "โรค" },
+    { de: "Arzt", th: "หมอ" },
+    { de: "Ärztin", th: "หมอหญิง" },
+    { de: "Krankenhaus", th: "โรงพยาบาล" },
+    { de: "Klinik", th: "คลินิก" },
+    { de: "Apotheke", th: "ร้านขายยา" },
+    { de: "Medikament", th: "ยา" },
+    { de: "Tablette", th: "ยาเม็ด" },
+    { de: "Spritze", th: "เข็มฉีดยา" },
+    { de: "Verband", th: "ผ้าพันแผล" },
+    { de: "Fieber", th: "ไข้" },
+    { de: "Schmerz", th: "ความเจ็บปวด" },
+    { de: "Kopfschmerz", th: "อาการปวดหัว" },
+    { de: "Bauchschmerz", th: "อาการปวดท้อง" },
+    { de: "Erkältung", th: "หวัด" },
+    { de: "Grippe", th: "ไข้หวัดใหญ่" },
+    { de: "Husten", th: "ไอ" },
+    { de: "Schnupfen", th: "น้ำมูกไหล" },
+    { de: "Allergie", th: "ภูมิแพ้" },
+    { de: "Blutdruck", th: "ความดันโลหิต" },
+    { de: "Herz", th: "หัวใจ" },
+    { de: "Lunge", th: "ปอด" },
+    { de: "Magen", th: "กระเพาะอาหาร" },
+    { de: "Leber", th: "ตับ" },
+    { de: "Niere", th: "ไต" },
+    { de: "Knochen", th: "กระดูก" },
+    { de: "Muskel", th: "กล้ามเนื้อ" },
+    { de: "Haut", th: "ผิวหนัง" },
+    { de: "Blut", th: "เลือด" },
+    { de: "Zahn", th: "ฟัน" },
+    { de: "Auge", th: "ตา" },
+    { de: "Ohr", th: "หู" },
+    { de: "Nase", th: "จมูก" },
+    { de: "Mund", th: "ปาก" },
+    { de: "Zunge", th: "ลิ้น" },
+    { de: "Hals", th: "คอ" },
+    { de: "Arm", th: "แขน" },
+    { de: "Bein", th: "ขา" },
+    { de: "Hand", th: "มือ" },
+    { de: "Fuß", th: "เท้า" },
+    { de: "Finger", th: "นิ้วมือ" },
+    { de: "Zehe", th: "นิ้วเท้า" },
+    { de: "Kopf", th: "หัว" },
+    { de: "Gesicht", th: "ใบหน้า" },
+    { de: "Stirn", th: "หน้าผาก" },
+    { de: "Wange", th: "แก้ม" },
+    { de: "Kinn", th: "คาง" },
+    { de: "Lippe", th: "ริมฝีปาก" },
+    { de: "Haar", th: "ผม" },
+    { de: "Bart", th: "เครา" },
+    { de: "Schnurrbart", th: "หนวด" },
+    { de: "Augenbraue", th: "คิ้ว" },
+    { de: "Wimper", th: "ขนตา" },
+    { de: "Körper", th: "ร่างกาย" },
+    { de: "Gesund", th: "สุขภาพดี" },
+    { de: "Krank", th: "ป่วย" },
+    { de: "Verletzung", th: "การบาดเจ็บ" },
+    { de: "Wunde", th: "แผล" },
+    { de: "Bruch", th: "กระดูกหัก" },
+    { de: "Operation", th: "การผ่าตัด" },
+    { de: "Arztbesuch", th: "การไปพบหมอ" },
+    { de: "Untersuchung", th: "การตรวจร่างกาย" },
+    { de: "Diagnose", th: "การวินิจฉัย" },
+    { de: "Behandlung", th: "การรักษา" },
+    { de: "Therapie", th: "การบำบัด" },
+    { de: "Rezept", th: "ใบสั่งยา" },
+    { de: "Krankenkasse", th: "ประกันสุขภาพ" },
+    { de: "Krankenversicherung", th: "ประกันสุขภาพ" },
+    { de: "Impfung", th: "การฉีดวัคซีน" },
+    { de: "Gesundheitscheck", th: "การตรวจสุขภาพ" },
+    { de: "Fitness", th: "ฟิตเนส" },
+    { de: "Sport", th: "กีฬา" },
+    { de: "Bewegung", th: "การเคลื่อนไหว" },
+    { de: "Ernährung", th: "โภชนาการ" },
+    { de: "Diät", th: "อาหารควบคุม" },
+    { de: "Vitamin", th: "วิตามิน" },
+    { de: "Mineralstoff", th: "แร่ธาตุ" },
+    { de: "Schlaf", th: "การนอน" },
+    { de: "Stress", th: "ความเครียด" },
+    { de: "Entspannung", th: "การผ่อนคลาย" },
+    { de: "Meditation", th: "การทำสมาธิ" },
+    { de: "Yoga", th: "โยคะ" },
+    { de: "Atmung", th: "การหายใจ" },
+    { de: "Herzschlag", th: "การเต้นของหัวใจ" },
+    { de: "Puls", th: "ชีพจร" },
+    { de: "Temperatur", th: "อุณหภูมิ" },
+    { de: "Hygiene", th: "สุขอนามัย" },
+    { de: "Dusche", th: "ฝักบัว" },
+    { de: "Bad", th: "อ่างอาบน้ำ" },
+    { de: "Seife", th: "สบู่" },
+    { de: "Shampoo", th: "แชมพู" },
+    { de: "Zahnbürste", th: "แปรงสีฟัน" },
+    { de: "Zahnpasta", th: "ยาสีฟัน" },
+    { de: "Handtuch", th: "ผ้าเช็ดตัว" },
+    { de: "Deodorant", th: "ผลิตภัณฑ์ระงับกลิ่น" },
+    { de: "Rasierer", th: "มีดโกน" },
+    { de: "Kamm", th: "หวี" },
+    { de: "Bürste", th: "แปรง" },
+    { de: "Spiegel", th: "กระจก" },
+    { de: "Brille", th: "แว่นตา" },
+    { de: "Kontaktlinsen", th: "คอนแทคเลนส์" },
+    { de: "Hörgerät", th: "เครื่องช่วยฟัง" },
+    { de: "Krücke", th: "ไม้ค้ำยัน" },
+    { de: "Rollstuhl", th: "รถเข็น" },
+    { de: "Prothese", th: "อวัยวะเทียม" },
+    { de: "Erste Hilfe", th: "การปฐมพยาบาล" },
+    { de: "Notfall", th: "เหตุฉุกเฉิน" },
+    { de: "Rettungswagen", th: "รถพยาบาล" },
+    { de: "Notarzt", th: "แพทย์ฉุกเฉิน" },
+    { de: "Symptome", th: "อาการ" },
+    { de: "Heilung", th: "การรักษา" },
+    { de: "Genesung", th: "การฟื้นตัว" },
+    { de: "Reha", th: "การฟื้นฟูสมรรถภาพ" },
+    { de: "Physiotherapie", th: "กายภาพบำบัด" },
+    { de: "Psychotherapie", th: "จิตบำบัด" },
+    { de: "Arzttermin", th: "นัดหมายแพทย์" },
+    { de: "Wartezimmer", th: "ห้องรอ" },
+    { de: "Krankmeldung", th: "การแจ้งป่วย" },
+    { de: "Medizin", th: "การแพทย์" },
+    { de: "Gesundheitssystem", th: "ระบบสุขภาพ" },
+    { de: "Gesundheitspolitik", th: "นโยบายสุขภาพ" },
+    { de: "Gesundheitsvorsorge", th: "การดูแลสุขภาพ" },
+    { de: "Prävention", th: "การป้องกัน" },
+    { de: "Impfpass", th: "สมุดบันทึกการฉีดวัคซีน" },
+    { de: "Bluttest", th: "การตรวจเลือด" },
+    { de: "Röntgen", th: "การเอกซเรย์" },
+    { de: "Ultraschall", th: "อัลตราซาวนด์" },
+    { de: "Gesundheitszustand", th: "สถานะสุขภาพ" },
+    { de: "Krankheitsursache", th: "สาเหตุของโรค" },
+    { de: "Nebenwirkung", th: "ผลข้างเคียง" },
+    { de: "Allergietest", th: "การทดสอบภูมิแพ้" },
+    { de: "Blutgruppe", th: "หมู่เลือด" },
+    { de: "Blutspende", th: "การบริจาคเลือด" },
+    { de: "Organtransplantation", th: "การปลูกถ่ายอวัยวะ" },
+    { de: "Schmerzmittel", th: "ยาแก้ปวด" },
+    { de: "Antibiotikum", th: "ยาปฏิชีวนะ" },
+    { de: "Virus", th: "ไวรัส" },
+    { de: "Bakterien", th: "แบคทีเรีย" },
+    { de: "Infektion", th: "การติดเชื้อ" },
+    { de: "Immunsystem", th: "ระบบภูมิคุ้มกัน" },
+    { de: "Fieberthermometer", th: "เทอร์โมมิเตอร์วัดไข้" },
+    { de: "Blutdruckmessgerät", th: "เครื่องวัดความดันโลหิต" },
+    { de: "Gesundheitsbewusstsein", th: "การตระหนักถึงสุขภาพ" },
+    { de: "Lebensstil", th: "วิถีชีวิต" },
+    { de: "Rauchen", th: "การสูบบุหรี่" },
+    { de: "Alkohol", th: "แอลกอฮอล์" },
+    { de: "Drogen", th: "ยาเสพติด" },
+    { de: "Abhängigkeit", th: "การเสพติด" },
+    { de: "Entzug", th: "การถอนยา" },
+    { de: "Gewicht", th: "น้ำหนัก" },
+    { de: "Größe", th: "ส่วนสูง" },
+    { de: "BMI", th: "ดัชนีมวลกาย" },
+    { de: "Kalorien", th: "แคลอรี่" },
+    { de: "Eiweiß", th: "โปรตีน" },
+    { de: "Kohlenhydrate", th: "คาร์โบไฮเดรต" },
+    { de: "Fett", th: "ไขมัน" },
+    { de: "Ballaststoffe", th: "ใยอาหาร" },
+    { de: "Wasser", th: "น้ำ" },
+    { de: "Durst", th: "ความกระหาย" },
+    { de: "Hunger", th: "ความหิว" },
+    { de: "Appetit", th: "ความอยากอาหาร" },
+    { de: "Verdauung", th: "การย่อยอาหาร" },
+    { de: "Stoffwechsel", th: "การเผาผลาญ" },
+    { de: "Energie", th: "พลังงาน" },
+    { de: "Müdigkeit", th: "ความเหนื่อยล้า" },
+    { de: "Schlaflosigkeit", th: "อาการนอนไม่หลับ" },
+    { de: "Schnarchen", th: "การนอนกรน" },
+    { de: "Atemnot", th: "หายใจลำบาก" },
+    { de: "Schwindel", th: "อาการวิงเวียน" },
+    { de: "Ohnmacht", th: "อาการเป็นลม" },
+    { de: "Krampf", th: "ตะคริว" },
+    { de: "Zittern", th: "การสั่น" },
+    { de: "Jucken", th: "อาการคัน" },
+    { de: "Ausschlag", th: "ผื่น" },
+    { de: "Schwellung", th: "อาการบวม" },
+    { de: "Prellung", th: "รอยช้ำ" },
+    { de: "Schnittwunde", th: "แผลตัด" },
+    { de: "Brandwunde", th: "แผลไฟไหม้" },
+    { de: "Sonnenbrand", th: "ผิวไหม้แดด" },
+    { de: "Erste-Hilfe-Kasten", th: "ชุดปฐมพยาบาล" },
+    { de: "Pflaster", th: "พลาสเตอร์" },
+    { de: "Desinfektionsmittel", th: "น้ำยาฆ่าเชื้อ" },
+    { de: "Gesundheitstipps", th: "เคล็ดลับสุขภาพ" },
+    { de: "Gesundheitsförderung", th: "การส่งเสริมสุขภาพ" },
+    { de: "Gesundheitsrisiko", th: "ความเสี่ยงต่อสุขภาพ" },
+    { de: "Gesundheitsberatung", th: "การให้คำปรึกษาด้านสุขภาพ" },
+    { de: "Gesundheitskampagne", th: "แคมเปญสุขภาพ" },
+    { de: "Gesundheitsprogramm", th: "โปรแกรมสุขภาพ" },
+    { de: "Gesundheitszentrum", th: "ศูนย์สุขภาพ" },
+    { de: "Gesundheitsdienst", th: "บริการสุขภาพ" },
+    { de: "Gesundheitswesen", th: "ระบบสาธารณสุข" },
+    { de: "Gesundheitskontrolle", th: "การควบคุมสุขภาพ" },
+    { de: "Gesundheitsüberwachung", th: "การตรวจสอบสุขภาพ" },
+    { de: "Gesundheitsvorsorge", th: "การดูแลสุขภาพ" },
+    { de: "Gesundheitsmanagement", th: "การจัดการสุขภาพ" },
+    { de: "Gesundheitsbildung", th: "การศึกษาด้านสุขภาพ" },
+    { de: "Gesundheitsinformation", th: "ข้อมูลสุขภาพ" },
+    { de: "Gesundheitsversorgung", th: "การดูแลสุขภาพ" },
+    { de: "Gesundheitszustand", th: "สถานะสุขภาพ" },
+    { de: "Gesundheitsproblem", th: "ปัญหาสุขภาพ" },
+    { de: "Gesundheitslösung", th: "วิธีแก้ไขปัญหาสุขภาพ" },
+    { de: "Gesundheitsverbesserung", th: "การปรับปรุงสุขภาพ" },
+    { de: "Gesundheitsoptimierung", th: "การเพิ่มประสิทธิภาพสุขภาพ" },
+    { de: "Gesundheitsplan", th: "แผนสุขภาพ" },
+    { de: "Gesundheitsstrategie", th: "กลยุทธ์สุขภาพ" },
+    { de: "Gesundheitsziel", th: "เป้าหมายสุขภาพ" },
+    { de: "Gesundheitsförderung", th: "การส่งเสริมสุขภาพ" }
+],
+"Einkaufen und Geld - การซื้อของและเงิน": [
+    { de: "Einkaufen", th: "การซื้อของ" },
+    { de: "Geschäft", th: "ร้านค้า" },
+    { de: "Supermarkt", th: "ซูเปอร์มาร์เก็ต" },
+    { de: "Markt", th: "ตลาด" },
+    { de: "Laden", th: "ร้านค้า" },
+    { de: "Kasse", th: "แคชเชียร์" },
+    { de: "Kassierer", th: "พนักงานเก็บเงิน" },
+    { de: "Kassiererin", th: "พนักงานเก็บเงินหญิง" },
+    { de: "Warenkorb", th: "ตะกร้าสินค้า" },
+    { de: "Einkaufswagen", th: "รถเข็นช็อปปิ้ง" },
+    { de: "Preis", th: "ราคา" },
+    { de: "Rabatt", th: "ส่วนลด" },
+    { de: "Angebot", th: "ข้อเสนอ" },
+    { de: "Sonderangebot", th: "ข้อเสนอพิเศษ" },
+    { de: "Rechnung", th: "ใบเสร็จ" },
+    { de: "Quittung", th: "ใบเสร็จรับเงิน" },
+    { de: "Bezahlen", th: "การชำระเงิน" },
+    { de: "Bargeld", th: "เงินสด" },
+    { de: "Kreditkarte", th: "บัตรเครดิต" },
+    { de: "Bankkarte", th: "บัตรเดบิต" },
+    { de: "Geldautomat", th: "ตู้เอทีเอ็ม" },
+    { de: "Geld", th: "เงิน" },
+    { de: "Münze", th: "เหรียญ" },
+    { de: "Geldschein", th: "ธนบัตร" },
+    { de: "Portemonnaie", th: "กระเป๋าสตางค์" },
+    { de: "Brieftasche", th: "กระเป๋าสตางค์" },
+    { de: "Einkaufsliste", th: "รายการช็อปปิ้ง" },
+    { de: "Produkt", th: "ผลิตภัณฑ์" },
+    { de: "Ware", th: "สินค้า" },
+    { de: "Qualität", th: "คุณภาพ" },
+    { de: "Marke", th: "ยี่ห้อ" },
+    { de: "Verpackung", th: "บรรจุภัณฑ์" },
+    { de: "Etikett", th: "ป้าย" },
+    { de: "Regal", th: "ชั้นวาง" },
+    { de: "Gang", th: "ทางเดิน" },
+    { de: "Lebensmittel", th: "อาหาร" },
+    { de: "Obst", th: "ผลไม้" },
+    { de: "Gemüse", th: "ผัก" },
+    { de: "Fleisch", th: "เนื้อสัตว์" },
+    { de: "Fisch", th: "ปลา" },
+    { de: "Milchprodukte", th: "ผลิตภัณฑ์นม" },
+    { de: "Brot", th: "ขนมปัง" },
+    { de: "Nudeln", th: "เส้นก๋วยเตี๋ยว" },
+    { de: "Reis", th: "ข้าว" },
+    { de: "Gewürze", th: "เครื่องเทศ" },
+    { de: "Öl", th: "น้ำมัน" },
+    { de: "Zucker", th: "น้ำตาล" },
+    { de: "Salz", th: "เกลือ" },
+    { de: "Getränke", th: "เครื่องดื่ม" },
+    { de: "Wasser", th: "น้ำ" },
+    { de: "Saft", th: "น้ำผลไม้" },
+    { de: "Bier", th: "เบียร์" },
+    { de: "Wein", th: "ไวน์" },
+    { de: "Kaffee", th: "กาแฟ" },
+    { de: "Tee", th: "ชา" },
+    { de: "Kleidung", th: "เสื้อผ้า" },
+    { de: "Schuhe", th: "รองเท้า" },
+    { de: "Schmuck", th: "เครื่องประดับ" },
+    { de: "Elektronik", th: "อิเล็กทรอนิกส์" },
+    { de: "Haushaltswaren", th: "ของใช้ในครัวเรือน" },
+    { de: "Möbel", th: "เฟอร์นิเจอร์" },
+    { de: "Spielzeug", th: "ของเล่น" },
+    { de: "Buch", th: "หนังสือ" },
+    { de: "Zeitschrift", th: "นิตยสาร" },
+    { de: "Zeitung", th: "หนังสือพิมพ์" },
+    { de: "Geschenk", th: "ของขวัญ" },
+    { de: "Verkäufer", th: "พนักงานขาย" },
+    { de: "Verkäuferin", th: "พนักงานขายหญิง" },
+    { de: "Kunde", th: "ลูกค้า" },
+    { de: "Kundin", th: "ลูกค้าหญิง" },
+    { de: "Service", th: "บริการ" },
+    { de: "Reklamation", th: "การร้องเรียน" },
+    { de: "Rückgabe", th: "การคืนสินค้า" },
+    { de: "Umtausch", th: "การแลกเปลี่ยน" },
+    { de: "Garantie", th: "การรับประกัน" },
+    { de: "Lieferung", th: "การจัดส่ง" },
+    { de: "Versand", th: "การส่ง" },
+    { de: "Online-Shop", th: "ร้านค้าออนไลน์" },
+    { de: "Warenkorb", th: "ตะกร้าสินค้าออนไลน์" },
+    { de: "Bestellung", th: "การสั่งซื้อ" },
+    { de: "Lieferzeit", th: "ระยะเวลาการจัดส่ง" },
+    { de: "Versandkosten", th: "ค่าขนส่ง" },
+    { de: "Zahlung", th: "การชำระเงิน" },
+    { de: "Überweisung", th: "การโอนเงิน" },
+    { de: "Rechnung", th: "ใบแจ้งหนี้" },
+    { de: "Konto", th: "บัญชี" },
+    { de: "Bank", th: "ธนาคาร" },
+    { de: "Sparkasse", th: "ธนาคารออมสิน" },
+    { de: "Kredit", th: "สินเชื่อ" },
+    { de: "Darlehen", th: "เงินกู้" },
+    { de: "Zinsen", th: "ดอกเบี้ย" },
+    { de: "Sparen", th: "การออม" },
+    { de: "Budget", th: "งบประมาณ" },
+    { de: "Ausgaben", th: "ค่าใช้จ่าย" },
+    { de: "Einnahmen", th: "รายได้" },
+    { de: "Gehalt", th: "เงินเดือน" },
+    { de: "Lohn", th: "ค่าจ้าง" },
+    { de: "Steuern", th: "ภาษี" },
+    { de: "Rechnung", th: "บิล" },
+    { de: "Schulden", th: "หนี้" },
+    { de: "Kreditkartenabrechnung", th: "ใบแจ้งยอดบัตรเครดิต" },
+    { de: "Kontostand", th: "ยอดเงินในบัญชี" },
+    { de: "Geldabheben", th: "การถอนเงิน" },
+    { de: "Einzahlen", th: "การฝากเงิน" },
+    { de: "Wechselgeld", th: "เงินทอน" },
+    { de: "Preisvergleich", th: "การเปรียบเทียบราคา" },
+    { de: "Schnäppchen", th: "สินค้าราคาถูก" },
+    { de: "teuer", th: "แพง" },
+    { de: "billig", th: "ถูก" },
+    { de: "Kosten", th: "ค่าใช้จ่าย" },
+    { de: "Wert", th: "มูลค่า" },
+    { de: "Kauf", th: "การซื้อ" },
+    { de: "Verkauf", th: "การขาย" },
+    { de: "Handel", th: "การค้า" },
+    { de: "Marktpreis", th: "ราคาตลาด" },
+    { de: "Preisliste", th: "รายการราคา" },
+    { de: "Rabattcode", th: "รหัสส่วนลด" },
+    { de: "Gutschein", th: "คูปอง" },
+    { de: "Geschenkgutschein", th: "บัตรของขวัญ" },
+    { de: "Einkaufszentrum", th: "ห้างสรรพสินค้า" },
+    { de: "Kaufhaus", th: "ห้างสรรพสินค้า" },
+    { de: "Boutique", th: "ร้านบูติก" },
+    { de: "Flohmarkt", th: "ตลาดนัด" },
+    { de: "Wochenmarkt", th: "ตลาดรายสัปดาห์" },
+    { de: "Bauernmarkt", th: "ตลาดเกษตรกร" },
+    { de: "Ladenöffnungszeiten", th: "เวลาเปิดร้าน" },
+    { de: "Kassenzettel", th: "ใบเสร็จ" },
+    { de: "Einkaufsbeutel", th: "ถุงช็อปปิ้ง" },
+    { de: "Plastiktüte", th: "ถุงพลาสติก" },
+    { de: "Papiertüte", th: "ถุงกระดาษ" },
+    { de: "Einkaufstasche", th: "กระเป๋าช็อปปิ้ง" },
+    { de: "Warenangebot", th: "ข้อเสนอสินค้า" },
+    { de: "Warenqualität", th: "คุณภาพสินค้า" },
+    { de: "Warenpräsentation", th: "การนำเสนอสินค้า" },
+    { de: "Warenverfügbarkeit", th: "ความพร้อมของสินค้า" },
+    { de: "Warenbestand", th: "สต็อกสินค้า" },
+    { de: "Warennachschub", th: "การเติมสต็อกสินค้า" },
+    { de: "Warenlieferung", th: "การส่งมอบสินค้า" },
+    { de: "Warenrückgabe", th: "การคืนสินค้า" },
+    { de: "Warenumtausch", th: "การแลกเปลี่ยนสินค้า" },
+    { de: "Warenbeschwerde", th: "การร้องเรียนสินค้า" },
+    { de: "Warensicherung", th: "การรักษาความปลอดภัยสินค้า" },
+    { de: "Warenpreis", th: "ราคาสินค้า" },
+    { de: "Warenangebot", th: "ข้อเสนอสินค้า" },
+    { de: "Warenverkauf", th: "การขายสินค้า" },
+    { de: "Warenmanagement", th: "การจัดการสินค้า" },
+    { de: "Warenwirtschaft", th: "ระบบจัดการสินค้า" },
+    { de: "Warenbestellung", th: "การสั่งซื้อสินค้า" },
+    { de: "Warenlieferant", th: "ผู้จัดหาสินค้า" },
+    { de: "Warenkontrolle", th: "การตรวจสอบสินค้า" },
+    { de: "Warenverpackung", th: "การบรรจุสินค้า" },
+    { de: "Warenetikett", th: "ป้ายสินค้า" },
+    { de: "Warenbeschreibung", th: "คำอธิบายสินค้า" },
+    { de: "Warenpräsentation", th: "การนำเสนอสินค้า" }
+    ]
+	
+	  
+      // Füge weitere Kategorien hier ein
+    };
+
+    // React-Komponente ohne JSX
+    const App = () => {
+      const [state, setState] = React.useState({
+        currentScreen: 'categories',
+        selectedCategory: null,
+        testMode: null,
+        currentWordIndex: 0,
+        selectedOption: null,
+        score: 0,
+        totalQuestions: 0,
+        quizWords: [],
+        options: [],
+        feedback: '',
+        answered: false
+      });
+
+      const setStateField = (updates) => {
+        setState(prev => ({ ...prev, ...updates }));
+      };
+
+      React.useEffect(() => {
+        if (!categoriesData || Object.keys(categoriesData).length === 0) {
+          console.error('Fehler: categoriesData ist leer.');
+          setStateField({ feedback: 'Fehler: Keine Kategorien geladen.' });
+        }
+      }, []);
+
+      const categories = Object.keys(categoriesData);
+
+      const shuffleArray = (array) => {
+        return array.sort(() => Math.random() - 0.5);
+      };
+
+      const generateOptions = (correctAnswer, allAnswers) => {
+        const options = [correctAnswer];
+        const availableAnswers = allAnswers.filter(ans => ans !== correctAnswer);
+        const maxOptions = Math.min(7, availableAnswers.length); // Maximal 7 zusätzliche Optionen
+        for (let i = 0; i < maxOptions; i++) {
+          const randomIndex = Math.floor(Math.random() * availableAnswers.length);
+          const randomAnswer = availableAnswers.splice(randomIndex, 1)[0];
+          options.push(randomAnswer);
+        }
+        return shuffleArray(options);
+      };
+
+      const startViewWords = (category) => {
+        setStateField({ selectedCategory: category, currentScreen: 'viewWords' });
+      };
+
+      const startQuiz = (category, mode) => {
+        try {
+          const words = shuffleArray([...categoriesData[category]]).slice(0, 5);
+          const allAnswers = mode === 'de-th' ? categoriesData[category].map(w => w.th) : categoriesData[category].map(w => w.de);
+          const options = generateOptions(words[0][mode === 'de-th' ? 'th' : 'de'], allAnswers);
+          setStateField({
+            selectedCategory: category,
+            testMode: mode,
+            quizWords: words,
+            totalQuestions: words.length,
+            currentWordIndex: 0,
+            score: 0,
+            selectedOption: null,
+            options: options,
+            feedback: '',
+            answered: false,
+            currentScreen: 'quiz'
+          });
+        } catch (error) {
+          console.error('Fehler beim Starten des Quiz:', error);
+          setStateField({ feedback: 'Fehler beim Laden des Quiz.' });
+        }
+      };
+
+      const checkAnswer = (option) => {
+        try {
+          const { quizWords, currentWordIndex, testMode, score, selectedCategory } = state;
+          const currentWord = quizWords[currentWordIndex];
+          const correctAnswer = testMode === 'de-th' ? currentWord.th : currentWord.de;
+          const isCorrect = option === correctAnswer;
+          setStateField({
+            score: isCorrect ? score + 1 : score,
+            selectedOption: option,
+            feedback: isCorrect ? 'Richtig!' : `Falsch! Richtig ist: ${correctAnswer}`,
+            answered: true
+          });
+          setTimeout(() => {
+            const nextIndex = currentWordIndex + 1;
+            if (nextIndex < quizWords.length) {
+              const allAnswers = testMode === 'de-th' ? categoriesData[selectedCategory].map(w => w.th) : categoriesData[selectedCategory].map(w => w.de);
+              const newOptions = generateOptions(quizWords[nextIndex][testMode === 'de-th' ? 'th' : 'de'], allAnswers);
+              setStateField({
+                currentWordIndex: nextIndex,
+                selectedOption: null,
+                options: newOptions,
+                feedback: '',
+                answered: false
+              });
+            } else {
+              setStateField({ currentScreen: 'result' });
+            }
+          }, 1000);
+        } catch (error) {
+          console.error('Fehler beim Überprüfen der Antwort:', error);
+          setStateField({ feedback: 'Fehler bei der Antwortprüfung.' });
+        }
+      };
+
+      const resetQuiz = () => {
+        setStateField({
+          currentScreen: 'categories',
+          selectedCategory: null,
+          testMode: null,
+          currentWordIndex: 0,
+          selectedOption: null,
+          score: 0,
+          totalQuestions: 0,
+          quizWords: [],
+          options: [],
+          feedback: '',
+          answered: false
+        });
+      };
+
+      // Render-Funktionen
+      const renderCategories = () => {
+        if (categories.length === 0) {
+          return React.createElement('p', { className: 'error' }, 'Fehler: Keine Kategorien geladen.');
+        }
+        return React.createElement(
+          'div',
+          null,
+          React.createElement('h1', { className: 'text-3xl' }, 'Vokabeltrainer Deutsch-Thai'),
+          React.createElement('h2', null, 'Wähle eine Kategorie'),
+          React.createElement(
+            'div',
+            { className: 'grid' },
+            categories.map(category =>
+              React.createElement(
+                'button',
+                {
+                  key: category,
+                  onClick: () => setStateField({ currentScreen: 'optionSelection', selectedCategory: category })
+                },
+                category
+              )
+            )
+          )
+        );
+      };
+
+      const renderOptionSelection = () => {
+        return React.createElement(
+          'div',
+          null,
+          React.createElement('h1', { className: 'text-3xl' }, 'Optionen'),
+          React.createElement('h2', null, `Kategorie: ${state.selectedCategory}`),
+          React.createElement(
+            'div',
+            { className: 'grid' },
+            React.createElement(
+              'button',
+              {
+                className: 'cyan-button',
+                onClick: () => startViewWords(state.selectedCategory)
+              },
+              'Wörter ansehen'
+            ),
+            React.createElement(
+              'button',
+              {
+                className: 'cyan-button',
+                onClick: () => startQuiz(state.selectedCategory, 'de-th')
+              },
+              'Test: Deutsch → Thai'
+            ),
+            React.createElement(
+              'button',
+              {
+                className: 'cyan-button',
+                onClick: () => startQuiz(state.selectedCategory, 'th-de')
+              },
+              'Test: Thai → Deutsch'
+            )
+          ),
+          React.createElement(
+            'button',
+            { onClick: () => setStateField({ currentScreen: 'categories' }) },
+            'Zurück'
+          )
+        );
+      };
+
+      const renderViewWords = () => {
+        const words = categoriesData[state.selectedCategory];
+        return React.createElement(
+          'div',
+          null,
+          React.createElement('h1', { className: 'text-3xl' }, 'Wörter ansehen: ' + state.selectedCategory),
+          React.createElement(
+            'div',
+            { className: 'grid' },
+            words.map(word => React.createElement(
+              'div',
+              { key: word.de, className: 'word-card' },
+              React.createElement('strong', null, word.de),
+              ' - ',
+              word.th
+            ))
+          ),
+          React.createElement(
+            'button',
+            { onClick: () => setStateField({ currentScreen: 'optionSelection' }) },
+            'Zurück'
+          )
+        );
+      };
+
+      const renderQuiz = () => {
+        const { quizWords, currentWordIndex, testMode, feedback, totalQuestions, options, selectedOption, answered } = state;
+        const currentWord = quizWords[currentWordIndex];
+        const correctAnswer = testMode === 'de-th' ? currentWord.th : currentWord.de;
+        const question = testMode === 'de-th'
+          ? `Was heißt "${currentWord.de}" auf Thai?`
+          : `Was heißt "${currentWord.th}" auf Deutsch?`;
+        return React.createElement(
+          'div',
+          null,
+          React.createElement('h1', { className: 'text-3xl' }, `Vokabeltest: ${state.selectedCategory}`),
+          React.createElement('p', null, `Frage ${currentWordIndex + 1} von ${totalQuestions}`),
+          React.createElement('p', null, question),
+          React.createElement(
+            'div',
+            { className: 'grid' },
+            options.map(option => React.createElement(
+              'button',
+              {
+                key: option,
+                className: `option-button ${answered ? (option === correctAnswer ? 'correct' : selectedOption === option ? 'incorrect' : '') : ''}`,
+                onClick: () => !answered && checkAnswer(option),
+                disabled: answered
+              },
+              option
+            ))
+          ),
+          React.createElement(
+            'button',
+            { onClick: () => setStateField({ currentScreen: 'optionSelection' }) },
+            'Zurück'
+          ),
+          feedback && React.createElement(
+            'p',
+            { className: `feedback ${feedback.includes('Richtig') ? 'correct' : 'incorrect'}` },
+            feedback
+          )
+        );
+      };
+
+      const renderResult = () => {
+        return React.createElement(
+          'div',
+          null,
+          React.createElement('h1', { className: 'text-3xl' }, 'Ergebnis'),
+          React.createElement('p', null, `Du hast ${state.score} von ${state.totalQuestions} Fragen richtig beantwortet!`),
+          React.createElement(
+            'button',
+            { className: 'cyan-button', onClick: resetQuiz },
+            'Neuer Test'
+          )
+        );
+      };
+
+      // Hauptrendering
+      const screens = {
+        categories: renderCategories,
+        optionSelection: renderOptionSelection,
+        viewWords: renderViewWords,
+        quiz: renderQuiz,
+        result: renderResult
+      };
+      return screens[state.currentScreen]();
+    };
+
+    // Rendering mit Fehlerbehandlung
+    try {
+      ReactDOM.render(React.createElement(App), document.getElementById('root'));
+    } catch (error) {
+      console.error('Fehler beim Rendern der App:', error);
+      document.getElementById('root').innerHTML = '<p class="error">Fehler beim Laden der Anwendung. Bitte überprüfe die Konsole.</p>';
+    }
+  </script>
+</body>
+</html>
